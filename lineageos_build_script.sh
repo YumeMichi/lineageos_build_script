@@ -15,9 +15,9 @@ IFUBUNTU=$(cat /proc/version | grep ubuntu)
 
 
 ### Main ###
-if [ "$ACTION" == "build" ]; then
+if [ "$IFUBUNTU" != "" ]; then
     ### Install dependencies ###
-    if [ "$IFUBUNTU" != "" ]; then
+    if [ "$ACTION" == "build" ]; then
         echo "---------- Installing dependencies ----------"
         apt-get -y update
         apt-get -y install bison build-essential curl flex git gnupg gperf libesd0-dev libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev libxml2 libxml2-utils lzop openjdk-8-jdk openjdk-8-jre pngcrush schedtool squashfs-tools xsltproc zip zlib1g-dev g++-multilib gcc-multilib lib32ncurses5-dev lib32readline-dev lib32z1-dev python2.7 python2.7-dev python-pip liblzma-dev bc unzip maven imagemagick
@@ -27,45 +27,45 @@ if [ "$ACTION" == "build" ]; then
             echo "---------- Installing additional tools ----------"
             apt-get -y install -y nginx screen vim htop
         fi
+    
+    
+        ### Setup repo ###
+        echo "---------- Setting up repo ----------"
+        curl https://storage.googleapis.com/git-repo-downloads/repo > repo
+        chmod a+x repo
+        mv repo /usr/bin
+
+
+        ### Setup work tree ###
+        echo "---------- Setting up work tree ----------"
+        mkdir $ROMDIR $CCACHEDIR
+        cd $ROMDIR
+
+
+        ### Setup git ###
+        echo "---------- Setting up git ----------"
+        git config --global user.name "YumeMichi"
+        git config --global user.email "do4suki@gmail.com"
+
+
+        ### Sync source code ###
+        echo "---------- Syncing source code ----------"
+        echo "y" | repo init -u git://github.com/LineageOS/android.git -b cm-14.1
+        mkdir $ROMDIR/.repo/local_manifests
+        wget -q https://raw.githubusercontent.com/Lineage-onyx/local_manifests/master/local_manifests.xml -O $ROMDIR/.repo/local_manifests/roomservice.xml
+        repo sync -c -f -j8 --force-sync --no-clone-bundle --no-tags
+    elif [ "$ACTION" == "update" ]; then
+        ### Updating ###
+        echo "---------- Cleaning up work tree ----------"
+        cd $ROMDIR
+        ./patcher/unpatcher.sh
+        repo sync -c -f -j8 --force-sync --no-clone-bundle --no-tags
     else
-        echo "Not support the system except Ubuntu for now!"
+        echo "---------- Nothing to do ----------"
         exit 1
     fi
-
-
-    ### Setup repo ###
-    echo "---------- Setting up repo ----------"
-    curl https://storage.googleapis.com/git-repo-downloads/repo > repo
-    chmod a+x repo
-    mv repo /usr/bin
-
-
-    ### Setup work tree ###
-    echo "---------- Setting up work tree ----------"
-    mkdir $ROMDIR $CCACHEDIR
-    cd $ROMDIR
-
-
-    ### Setup git ###
-    echo "---------- Setting up git ----------"
-    git config --global user.name "YumeMichi"
-    git config --global user.email "do4suki@gmail.com"
-
-
-    ### Sync source code ###
-    echo "---------- Syncing source code ----------"
-    echo "y" | repo init -u git://github.com/LineageOS/android.git -b cm-14.1
-    mkdir $ROMDIR/.repo/local_manifests
-    wget -q https://raw.githubusercontent.com/Lineage-onyx/local_manifests/master/local_manifests.xml -O $ROMDIR/.repo/local_manifests/roomservice.xml
-    repo sync -c -f -j8 --force-sync --no-clone-bundle --no-tags
-elif [ "$ACTION" == "update" ]; then
-    ### Updating ###
-    echo "---------- Cleaning up work tree ----------"
-    cd $ROMDIR
-    ./patcher/unpatcher.sh
-    repo sync -c -f -j8 --force-sync --no-clone-bundle --no-tags
 else
-    echo "---------- Nothing to do ----------"
+    echo "Not support the system except Ubuntu for now!"
     exit 1
 fi
 
