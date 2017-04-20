@@ -59,6 +59,7 @@ if [ "$IFUBUNTU" != "" ]; then
         echo "---------- Cleaning up work tree ----------"
         cd $ROMDIR
         ./patcher/unpatcher.sh
+        wget -q https://raw.githubusercontent.com/Lineage-onyx/local_manifests/master/local_manifests.xml -O $ROMDIR/.repo/local_manifests/roomservice.xml
         repo sync -c -f -j8 --force-sync --no-clone-bundle --no-tags
     else
         echo "---------- Nothing to do ----------"
