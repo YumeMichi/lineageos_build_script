@@ -7,6 +7,7 @@ ROMDIR=$BASEDIR/lineage
 OUTDIR=/var/www/html
 CCACHEDIR=$BASEDIR/.ccache
 BUILDATE=`date '+%Y%m%d'`
+CORES=`cat /proc/cpuinfo | grep "processor" | wc -l`
 
 
 ### System checking ###
@@ -89,7 +90,7 @@ export CCACHE_DIR=$CCACHEDIR
 echo "---------- Starting building ----------"
 . build/envsetup.sh
 lunch cm_onyx-userdebug
-make bacon -j8
+make bacon -j$CORES
 
 
 ### Copy zip to nginx dir ###
