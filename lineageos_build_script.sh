@@ -23,11 +23,13 @@ if [ "$IFUBUNTU" != "" ]; then
         apt-get -y update
         apt-get -y install bison build-essential curl flex git gnupg gperf libesd0-dev libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev libxml2 libxml2-utils lzop openjdk-8-jdk openjdk-8-jre pngcrush schedtool squashfs-tools xsltproc zip zlib1g-dev g++-multilib gcc-multilib lib32ncurses5-dev lib32readline-dev lib32z1-dev python2.7 python2.7-dev python-pip liblzma-dev bc unzip maven imagemagick
 
-        read -p "Install additional tools [y/n]: " add
-        if [[ "$add" == "y" ]] || [[ "$add" == "Y" ]]; then
-            echo "---------- Installing additional tools ----------"
-            apt-get -y install -y nginx screen vim htop
-        fi
+        # read -p "Install additional tools [y/n]: " add
+        # if [[ "$add" == "y" ]] || [[ "$add" == "Y" ]]; then
+        #     echo "---------- Installing additional tools ----------"
+        #     apt-get -y install -y nginx screen vim htop
+        # fi
+        echo "---------- Installing additional tools ----------"
+        apt-get -y install -y nginx screen vim htop
     
     
         ### Setup repo ###
