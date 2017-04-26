@@ -92,7 +92,7 @@ export CCACHE_DIR=$CCACHEDIR
 echo "---------- Starting building ----------"
 . build/envsetup.sh
 lunch cm_onyx-userdebug
-make bacon -j$CORES
+make bacon -j$CORES | tee $BUILDATE.log
 
 
 ### Copy zip to nginx dir ###
