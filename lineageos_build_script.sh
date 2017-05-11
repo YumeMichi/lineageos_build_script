@@ -1,14 +1,41 @@
 #!/bin/bash
 
 ### Global variables ###
-ACTION=$1
+TYPE=$1
+ACTION=$2
 BASEDIR=`pwd`
-ROMDIR=$BASEDIR/lineage
 OUTDIR=/var/www/html
 CCACHEDIR=$BASEDIR/.ccache
 BUILDATE=`date '+%Y%m%d'`
+DUBUILDATE=`date -u +%Y%m%d-%H%M`
 CORES=`cat /proc/cpuinfo | grep "processor" | wc -l`
+MANIFESTS=""
+ROOMSERVICE=""
+VARIANT=""
+FILENAME=""
 
+if [ "$TYPE" == "lineage" ]; then
+    ROMDIR=$BASEDIR/lineage
+    MANIFESTS="git://github.com/LineageOS/android.git -b cm-14.1"
+    ROOMSERVICE="https://raw.githubusercontent.com/Lineage-onyx/local_manifests/master/local_manifests.xml"
+    VARIANT="lineage"
+    FILENAME="lineage-OMS-14.1-$BUILDATE-UNOFFICIAL-YumeMichi-onyx.zip"
+elif [ "$TYPE" == "omni" ]; then
+    ROMDIR=$BASEDIR/omni
+    MANIFESTS="git://github.com/omnirom/android.git -b android-7.1"
+    ROOMSERVICE="https://raw.githubusercontent.com/Omni-onyx/local_manifests/android-7.1/local_manifests.xml"
+    VARIANT="omni"
+    FILENAME="omni-7.1.2-$BUILDATE-onyx-HOMEMADE.zip"
+elif [ "$TYPE" == "du" ]; then
+    ROMDIR=$BASEDIR/du
+    MANIFESTS="git://github.com/DirtyUnicorns/android_manifest.git -b n7x-caf"
+    ROOMSERVICE="https://raw.githubusercontent.com/DirtyUnicorns-onyx/local_manifests/master/local_manifests.xml"
+    VARIANT="du"
+    FILENAME="DirtyUnicorns-7.1.2-$DUBUILDATE-v11.4-YumeMichi-onyx.zip"
+else
+    echo "---------- Not support: $TYPE ----------"
+    exit 1
+fi
 
 ### System checking ###
 echo "---------- Checking system ----------"
@@ -53,16 +80,18 @@ if [ "$IFUBUNTU" != "" ]; then
 
         ### Sync source code ###
         echo "---------- Syncing source code ----------"
-        echo "y" | repo init -u git://github.com/LineageOS/android.git -b cm-14.1
+        echo "y" | repo init -u $MANIFESTS
         mkdir $ROMDIR/.repo/local_manifests
-        wget -q https://raw.githubusercontent.com/Lineage-onyx/local_manifests/master/local_manifests.xml -O $ROMDIR/.repo/local_manifests/roomservice.xml
+        wget -q $ROOMSERVICE -O $ROMDIR/.repo/local_manifests/roomservice.xml
         repo sync -c -f -j8 --force-sync --no-clone-bundle --no-tags
     elif [ "$ACTION" == "update" ]; then
         ### Updating ###
         echo "---------- Cleaning up work tree ----------"
         cd $ROMDIR
-        ./patcher/unpatcher.sh
-        wget -q https://raw.githubusercontent.com/Lineage-onyx/local_manifests/master/local_manifests.xml -O $ROMDIR/.repo/local_manifests/roomservice.xml
+        if [ "$TYPE" == "lineage" ]; then
+            ./patcher/unpatcher.sh
+        fi
+        wget -q $ROOMSERVICE -O $ROMDIR/.repo/local_manifests/roomservice.xml
         repo sync -c -f -j8 --force-sync --no-clone-bundle --no-tags
     else
         echo "---------- Nothing to do ----------"
@@ -73,13 +102,13 @@ else
     exit 1
 fi
 
-
-### Cleanup patch ###
-echo "---------- Patching ----------"
-cd $ROMDIR
-./patcher/unpatcher.sh
-./patcher/patcher.sh
-
+if [ "$TYPE" == "lineage" ]; then
+    ### Cleanup patch ###
+    echo "---------- Patching ----------"
+    cd $ROMDIR
+    ./patcher/unpatcher.sh
+    ./patcher/patcher.sh
+fi
 
 ### Setup CCACHE ###
 echo "---------- Setting up CCACHE ----------"
@@ -91,13 +120,13 @@ export CCACHE_DIR=$CCACHEDIR
 ### Start building ###
 echo "---------- Starting building ----------"
 . build/envsetup.sh
-lunch cm_onyx-userdebug
+lunch ${VARIANT}_onyx-userdebug
 make bacon -j$CORES | tee $BUILDATE.log
 
 
 ### Copy zip to nginx dir ###
 echo "---------- Copying zip to nginx dir ----------"
-cp $ROMDIR/out/target/product/onyx/lineage-OMS-14.1-$BUILDATE-UNOFFICIAL-YumeMichi-onyx.zip $OUTDIR
+cp $ROMDIR/out/target/product/onyx/$FILENAME $OUTDIR
 
 ### Finished ###
 echo "---------- Finished ----------"
