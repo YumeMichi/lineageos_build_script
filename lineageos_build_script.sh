@@ -82,7 +82,7 @@ if [ "$IFUBUNTU" != "" ]; then
         echo "---------- Syncing source code ----------"
         echo "y" | repo init -u $MANIFESTS
         mkdir $ROMDIR/.repo/local_manifests
-        wget -q $ROOMSERVICE -O $ROMDIR/.repo/local_manifests/roomservice.xml
+        wget -q --cache=off $ROOMSERVICE -O $ROMDIR/.repo/local_manifests/roomservice.xml
         repo sync -c -f -j8 --force-sync --no-clone-bundle --no-tags
     elif [ "$ACTION" == "update" ]; then
         ### Updating ###
@@ -91,7 +91,7 @@ if [ "$IFUBUNTU" != "" ]; then
         if [ "$TYPE" == "lineage" ]; then
             ./patcher/unpatcher.sh
         fi
-        wget -q $ROOMSERVICE -O $ROMDIR/.repo/local_manifests/roomservice.xml
+        wget -q --cache=off $ROOMSERVICE -O $ROMDIR/.repo/local_manifests/roomservice.xml
         repo sync -c -f -j8 --force-sync --no-clone-bundle --no-tags
     else
         echo "---------- Nothing to do ----------"
