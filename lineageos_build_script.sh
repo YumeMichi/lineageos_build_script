@@ -19,7 +19,7 @@ if [ "$TYPE" == "lineage" ]; then
     MANIFESTS="git://github.com/LineageOS/android.git -b cm-14.1"
     ROOMSERVICE="https://raw.githubusercontent.com/Lineage-onyx/local_manifests/master/local_manifests.xml"
     VARIANT="lineage"
-    FILENAME="lineage-OMS-14.1-$BUILDATE-UNOFFICIAL-YumeMichi-onyx.zip"
+    FILENAME="lineage-14.1-$BUILDATE-UNOFFICIAL-YumeMichi-onyx.zip"
 elif [ "$TYPE" == "omni" ]; then
     ROMDIR=$BASEDIR/omni
     MANIFESTS="git://github.com/omnirom/android.git -b android-7.1"
